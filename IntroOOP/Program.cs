@@ -134,38 +134,54 @@ namespace IntroOOP
             return new FileInfo(StudentsFilePath);
         }
 
-        private static IEnumerable<Student> EnumStudents(FileInfo StudentsFile)
-        {
-            foreach (var line in EnumLines(StudentsFile))
-            {
-                if (line is null || line.Length == 0) continue;
+        //private static IEnumerable<Student> EnumStudents(FileInfo StudentsFile)
+        //{
+        //    //foreach (var line in EnumLines(StudentsFile))
+        //    foreach (var line in StudentsFile.EnumLines())
+        //    {
+        //        if (line is null || line.Length == 0) continue;
 
-                var elements = line.Split(',');
-                if (elements.Length != 5) continue;
+        //        var elements = line.Split(',');
+        //        if (elements.Length != 5) continue;
 
-                var student = new Student
+        //        var student = new Student
+        //        {
+        //            Id = int.Parse(elements[0]),
+        //            LastName = elements[1],
+        //            FirstName = elements[2],
+        //            Patronymic = elements[3],
+        //            Rating = double.Parse(elements[4], CultureInfo.InvariantCulture),
+        //        };
+
+        //        yield return student;
+        //    }
+        //}
+
+        private static IEnumerable<Student> EnumStudents(FileInfo StudentsFile) =>
+            StudentsFile
+               .EnumLines()
+               .Where(line => line != null && line.Length > 0)
+               .Select(line => line.Split(','))
+               .Where(elements => elements.Length == 5)
+               .Select(elements => new Student
                 {
                     Id = int.Parse(elements[0]),
                     LastName = elements[1],
                     FirstName = elements[2],
                     Patronymic = elements[3],
                     Rating = double.Parse(elements[4], CultureInfo.InvariantCulture),
-                };
+                });
 
-                yield return student;
-            }
-        }
+        //private static IEnumerable<string> EnumLines(FileInfo file)
+        //{
+        //    //if (!file.Exists)
+        //    //    throw new FileNotFoundException("Файл данных не найден", file.FullName);
+        //    if (!file.Exists || file.Length == 0)
+        //        yield break;
 
-        private static IEnumerable<string> EnumLines(FileInfo file)
-        {
-            //if (!file.Exists)
-            //    throw new FileNotFoundException("Файл данных не найден", file.FullName);
-            if (!file.Exists || file.Length == 0)
-                yield break;
-
-            using var reader = file.OpenText();
-            while (!reader.EndOfStream)
-                yield return reader.ReadLine()!;
-        }
+        //    using var reader = file.OpenText();
+        //    while (!reader.EndOfStream)
+        //        yield return reader.ReadLine()!;
+        //}
     }
 }
