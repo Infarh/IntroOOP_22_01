@@ -18,11 +18,22 @@ namespace IntroOOP
 
         public static void Main(string[] args)
         {
+            var vectors = Enumerable.Range(1, 1000)
+               .Select(
+                    i => new Vector2D(
+                        X: (Random.Shared.NextDouble() - 0.5) * 200,
+                        Y: (Random.Shared.NextDouble() - 0.5) * 200))
+               .ToList();
+
+            vectors.Sort();
+
             //string[] last_names;
             //string[] first_names;
             //string[] patronymics;
 
             //GetFIOs(__NamesFileName, out last_names, out first_names, out patronymics);
+
+            //var (lasts, firsts, patrons) = GetFIOs(__NamesFileName);
 
             GetFIOs(__NamesFileName, out var last_names, out var first_names, out var patronymics);
 
@@ -30,6 +41,7 @@ namespace IntroOOP
 
             var students = EnumStudents(students_file);
 
+            //foreach (var (id, last, first, patronymic) in students/*.Where(student => student.Rating > 94)*/)
             foreach (var student in students/*.Where(student => student.Rating > 94)*/)
                 if (student.Rating > 94)
                 {
@@ -38,7 +50,15 @@ namespace IntroOOP
                     //    student.LastName, student.FirstName, student.Patronymic,
                     //    student.Rating);
                     Console.WriteLine(student);
+
+                    //var (id, last, first, patronymic) = student;
+                    //student.Deconstruct(out var id, out var last, out var first, out var patron);
                 }
+
+            //foreach (var (_, last_name, _, _) in students)
+            //{
+            //    Console.WriteLine(last_name);
+            //}
 
             var best_students_count = students.Count(s => s.Rating > 75);
             var last_students_count = students.Count(s => s.Rating < 30);
@@ -73,14 +93,152 @@ namespace IntroOOP
 
                     if (elements.Length < 3) continue;
 
-                    last_names.Add(elements[0]);
-                    first_names.Add(elements[1]);
-                    patronymics.Add(elements[2]);
+                    //last_names.Add(elements[0]);
+                    //first_names.Add(elements[1]);
+                    //patronymics.Add(elements[2]);
+
+                    var (last, first, patron) = elements;
+
+                    last_names.Add(last);
+                    first_names.Add(first);
+                    patronymics.Add(patron);
                 }
 
             LastNames = last_names.ToArray();
             FirstNames = first_names.ToArray();
             Patronymics = patronymics.ToArray();
+        }
+
+        public readonly struct FIOs
+        {
+            public string[] LastNames { get; init; }
+            public string[] FirstNames { get; init; }
+            public string[] Patronymics { get; init; }
+
+            public void Deconstruct(out string[] LastNames, out string[] FirstNames, out string[] Patronymics)
+            {
+                LastNames = this.LastNames;
+                FirstNames = this.FirstNames;
+                Patronymics = this.Patronymics;
+            }
+        }
+
+        //private static FIOs GetFIOs(string SourceFilePath)
+        //{
+        //    if (!File.Exists(SourceFilePath))
+        //        throw new FileNotFoundException("Файл с данными ФИО не найден", SourceFilePath);
+
+        //    var last_names = new List<string>();
+        //    var first_names = new List<string>();
+        //    var patronymics = new List<string>();
+
+
+        //    using (var file = File.OpenText(SourceFilePath))
+        //        while (!file.EndOfStream)
+        //        {
+        //            var line = file.ReadLine();
+        //            if (line!.Length == 0) continue;
+
+        //            var elements = line.Split(' ');
+        //            //if (elements.Length != 3) throw new FormatException("Неверный формат файла!");
+
+        //            if (elements.Length < 3) continue;
+
+        //            last_names.Add(elements[0]);
+        //            first_names.Add(elements[1]);
+        //            patronymics.Add(elements[2]);
+        //        }
+
+        //    //LastNames = last_names.ToArray();
+        //    //FirstNames = first_names.ToArray();
+        //    //Patronymics = patronymics.ToArray();
+
+        //    return new FIOs
+        //    {
+        //        LastNames = last_names.ToArray(),
+        //        FirstNames = first_names.ToArray(),
+        //        Patronymics = patronymics.ToArray(),
+        //    };
+        //}
+
+        //public readonly struct FIOs
+        //{
+        //    public string[] LastNames { get; init; }
+        //    public string[] FirstNames { get; init; }
+        //    public string[] Patronymics { get; init; }
+        //}
+
+        //public record struct FIOs(string[] LastNames, string[] FirstNames, string[] Patronymics);
+
+        //private static FIOs GetFIOs(string SourceFilePath)
+        //{
+        //    if (!File.Exists(SourceFilePath))
+        //        throw new FileNotFoundException("Файл с данными ФИО не найден", SourceFilePath);
+
+        //    var last_names = new List<string>();
+        //    var first_names = new List<string>();
+        //    var patronymics = new List<string>();
+
+
+        //    using (var file = File.OpenText(SourceFilePath))
+        //        while (!file.EndOfStream)
+        //        {
+        //            var line = file.ReadLine();
+        //            if (line!.Length == 0) continue;
+
+        //            var elements = line.Split(' ');
+        //            //if (elements.Length != 3) throw new FormatException("Неверный формат файла!");
+
+        //            if (elements.Length < 3) continue;
+
+        //            last_names.Add(elements[0]);
+        //            first_names.Add(elements[1]);
+        //            patronymics.Add(elements[2]);
+        //        }
+
+        //    //LastNames = last_names.ToArray();
+        //    //FirstNames = first_names.ToArray();
+        //    //Patronymics = patronymics.ToArray();
+
+        //    return new FIOs(last_names.ToArray(), first_names.ToArray(), patronymics.ToArray());
+        //    //{
+        //    //    LastNames = last_names.ToArray(),
+        //    //    FirstNames = first_names.ToArray(),
+        //    //    Patronymics = patronymics.ToArray(),
+        //    //};
+        //}
+
+        private static (string[] LastNames, string[] FirstNames, string[] Patronymics) GetFIOs(string SourceFilePath)
+        {
+            if (!File.Exists(SourceFilePath))
+                throw new FileNotFoundException("Файл с данными ФИО не найден", SourceFilePath);
+
+            var last_names = new List<string>();
+            var first_names = new List<string>();
+            var patronymics = new List<string>();
+
+
+            using (var file = File.OpenText(SourceFilePath))
+                while (!file.EndOfStream)
+                {
+                    var line = file.ReadLine();
+                    if (line!.Length == 0) continue;
+
+                    var elements = line.Split(' ');
+                    //if (elements.Length != 3) throw new FormatException("Неверный формат файла!");
+
+                    if (elements.Length < 3) continue;
+
+                    last_names.Add(elements[0]);
+                    first_names.Add(elements[1]);
+                    patronymics.Add(elements[2]);
+                }
+
+            //LastNames = last_names.ToArray();
+            //FirstNames = first_names.ToArray();
+            //Patronymics = patronymics.ToArray();
+
+            return (last_names.ToArray(), first_names.ToArray(), patronymics.ToArray());
         }
 
         private static FileInfo CreateStudents(
@@ -164,13 +322,13 @@ namespace IntroOOP
                .Select(line => line.Split(','))
                .Where(elements => elements.Length == 5)
                .Select(elements => new Student
-                {
-                    Id = int.Parse(elements[0]),
-                    LastName = elements[1],
-                    FirstName = elements[2],
-                    Patronymic = elements[3],
-                    Rating = double.Parse(elements[4], CultureInfo.InvariantCulture),
-                });
+               {
+                   Id = int.Parse(elements[0]),
+                   LastName = elements[1],
+                   FirstName = elements[2],
+                   Patronymic = elements[3],
+                   Rating = double.Parse(elements[4], CultureInfo.InvariantCulture),
+               });
 
         //private static IEnumerable<string> EnumLines(FileInfo file)
         //{
