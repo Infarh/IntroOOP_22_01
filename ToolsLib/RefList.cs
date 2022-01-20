@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace ToolsLib;
 
+[DebuggerDisplay("RefList[items:{Count}]")]
 public class RefList<T>
 {
+    [DebuggerDisplay("Node = {Value}")]
     public class Node
     {
         internal RefList<T>? _List;
