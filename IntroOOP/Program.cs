@@ -35,8 +35,27 @@ public static class Program
 
         strs_list.AddLast("111");
         strs_list.AddLast("222");
-        strs_list.AddLast("33");
+        strs_list.AddLast("333");
         strs_list.AddLast("444");
+        strs_list.AddLast("333");
+        strs_list.AddLast("222");
+        strs_list.AddLast("111");
+
+        var list_items = strs_list.Where(s => s.StartsWith("3")).ToArray();
+
+        foreach (var value in strs_list)
+        {
+            Console.WriteLine(value);
+
+            //strs_list.AddLast(value);
+        }
+
+        //var items = Enumerable.Range(1, 100).ToList();
+        //foreach (var item in items)
+        //{
+        //    items.Remove(item);
+        //}
+
 
         //strs_list.AddAfter(position, "555");
 

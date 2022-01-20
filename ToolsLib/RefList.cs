@@ -1,9 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 
 namespace ToolsLib;
 
 [DebuggerDisplay("RefList[items:{Count}]")]
-public class RefList<T>
+public class RefList<T> : IEnumerable<T>
 {
     [DebuggerDisplay("Node = {Value}")]
     public class Node
@@ -65,6 +66,8 @@ public class RefList<T>
         }
     }
 
+    private int _Version;
+
     private int _Count;
 
     public int Count => _Count;
@@ -96,6 +99,7 @@ public class RefList<T>
         First.Prev = node;
         First = node;
 
+        _Version++;
         return node;
     }
 
@@ -115,6 +119,7 @@ public class RefList<T>
         Last.Next = node;
         Last = node;
 
+        _Version++;
         return node;
     }
 
@@ -150,6 +155,7 @@ public class RefList<T>
         Position.Next = node;
         node.Next!.Prev = node;
 
+        _Version++;
         return node;
     }
 
@@ -170,6 +176,7 @@ public class RefList<T>
         Position.Prev = node;
         node.Prev!.Next = node;
 
+        _Version++;
         return node;
     }
 
@@ -206,6 +213,7 @@ public class RefList<T>
 
         _Count--;
 
+        _Version++;
         return node.Value;
     }
 
@@ -227,5 +235,72 @@ public class RefList<T>
         First = null;
         Last = null;
         _Count = 0;
+        _Version++;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    //public IEnumerator<T> GetEnumerator()
+    //{
+    //    if(_Count == 0)
+    //        yield break;
+
+    //    var node = First;
+    //    while (node != null)
+    //    {
+    //        yield return node.Value;
+    //        node = node.Next;
+    //    }
+    //}
+
+    public IEnumerator<T> GetEnumerator() => new RefListEnumerator(this);
+
+    private struct RefListEnumerator : IEnumerator<T>
+    {
+        private readonly RefList<T> _List;
+        private Node? _Node;
+        private Node? _FirstNode;
+        private int _InitialListVersion;
+
+        public T? Current { get; private set; }
+
+        object? IEnumerator.Current => Current;
+
+        public RefListEnumerator(RefList<T> List)
+        {
+            _List = List;
+            _InitialListVersion = List._Version;
+            _Node = null;
+            _FirstNode = null;
+            Current = default;
+        }
+
+        public bool MoveNext()
+        {
+            if (_InitialListVersion != _List._Version)
+                throw new InvalidOperationException("Состояние перечисляемого списка изменилось.");
+
+            if (_FirstNode is null)
+            {
+                _FirstNode = _List.First;
+                _Node = _FirstNode;
+            }
+            else
+            {
+                _Node = _Node?.Next;
+            }
+
+            Current = _Node is null ? default : _Node.Value;
+
+            return _Node != null;
+        }
+
+        public void Reset()
+        {
+            _FirstNode = null;
+            _Node = null;
+        }
+
+        public void Dispose() { }
     }
 }
