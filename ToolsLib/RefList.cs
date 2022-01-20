@@ -260,7 +260,7 @@ public class RefList<T> : IEnumerable<T>
         private readonly RefList<T> _List;
         private Node? _Node;
         private Node? _FirstNode;
-        private int _InitialListVersion;
+        private readonly int _InitialListVersion;
 
         public T? Current { get; private set; }
 
