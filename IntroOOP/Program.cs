@@ -1,8 +1,10 @@
-﻿namespace IntroOOP;
+﻿using ToolsLib.MathExpressions;
+
+namespace IntroOOP;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    private static void OperatorsTests()
     {
         var a = new Vector2D(5, 7);
         var b = new Vector2D(-6, 10);
@@ -23,6 +25,21 @@ public static class Program
 
         var a_str = a.ToString();
         a = Vector2D.Parse(a_str);
+    }
+
+    public static void Main(string[] args)
+    {
+        var a = new ValueExpr(0);
+        var b = new ValueExpr(7);
+        var c = new ValueExpr(1);
+
+        var d = a + b * c;
+
+        var e = (a + 7) / Math.PI;
+
+        var result = d.Compute();
+
+        var simplified = d.Simplify();
     }
 }
 
