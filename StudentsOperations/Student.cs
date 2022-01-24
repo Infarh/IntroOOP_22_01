@@ -3,6 +3,7 @@
 namespace StudentsOperations
 {
     //[DebuggerDisplay("[{Id}] {LastName} {FirstName} {Patronymic} - {Rating}")]
+    [Serializable]
     public class Student : IComparable<Student>
     {
         public int Id { get; set; }
