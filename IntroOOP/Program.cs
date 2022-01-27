@@ -35,6 +35,10 @@ public static class Program
         }, new StudentsGroup { Name = "Группа-2" });
 
 
+        var students_ratings = new Dictionary<Student, double>();
+
+        var students_set = new HashSet<Student>();
+
         Console.ReadLine();
     }
 }

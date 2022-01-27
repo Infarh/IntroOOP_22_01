@@ -28,5 +28,22 @@ namespace StudentsOperations
         }
 
         public override string ToString() => $"[{Id,4}] {LastName} {FirstName} {Patronymic} - {Rating:0.0#}";
+
+        public override int GetHashCode()
+        {
+            //return HashCode.Combine(Id, LastName, FirstName, Patronymic, Rating, GroupId);
+
+            unchecked
+            {
+                var hash = Id.GetHashCode();
+                hash = (hash * 397) ^ LastName.GetHashCode(); // ^ - оператор "исключающее или" - побитовый
+                hash = (hash * 397) ^ FirstName.GetHashCode(); // X != Y;
+                hash = (hash * 397) ^ Patronymic.GetHashCode();
+                hash = (hash * 397) ^ Rating.GetHashCode();
+                hash = (hash * 397) ^ GroupId.GetHashCode();
+
+                return hash;
+            }
+        }
     }
 }

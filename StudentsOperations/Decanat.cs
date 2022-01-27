@@ -9,7 +9,8 @@ public class Decanat
     private int _LastFreeCourseId = 1;
     private int _LastFreeLectorId = 1;
 
-    private readonly List<Student> _Students = new();
+    private readonly Dictionary<int, Student> _Students = new ();   // Время поиска O(1)
+    //private readonly List<Student> _Students = new();             // Время поиска O(N)
 
     private readonly List<StudentsGroup> _Groups = new();
 
@@ -19,7 +20,7 @@ public class Decanat
 
     public int AddStudent(Student Student, StudentsGroup Group)
     {
-        if (_Students.Contains(Student))
+        if (_Students.ContainsKey(Student.Id))
             return Student.Id;
 
         //if (_Students.Count == 0)
@@ -33,10 +34,11 @@ public class Decanat
         //var m = i++; // 0 <- { m = i; i = i + 1; }
         //var k = ++i; // 2 <- { i = i + 1; k = i; }
 
-        _Students.Add(Student);
+        _Students.Add(Student.Id, Student);
 
         AddGroup(Group);
         Group.Students.Add(Student);
+        Student.GroupId = Group.Id;
 
         return Student.Id;
     }
@@ -76,11 +78,11 @@ public class Decanat
 
     public Student? RemoveStudent(int Id)
     {
-        var student = _Students.FirstOrDefault(s => s.Id == Id);
+        var student = GetStudentById(Id);
         if (student is null)
             return null;
 
-        _Students.Remove(student);
+        _Students.Remove(student.Id);
         var group = _Groups.FirstOrDefault(g => g.Students.Contains(student));
         if (group != null)
             group.Students.Remove(student);
@@ -88,12 +90,16 @@ public class Decanat
         return student;
     }
 
-    public IEnumerable<Student> GetAllStudents() => _Students;
+    public IEnumerable<Student> GetAllStudents() => _Students.Values;
 
     public Student? GetStudentById(int Id)
     {
-        var student = _Students.FirstOrDefault(s => s.Id == Id);
-        return student;
+        //var student = _Students[Id]; // Если в словаре такого ключа нет, то получаем исключение
+        //return student;
+        //var student = _Students.TryGetValue(Id, out var value) ? value : null;
+        if (_Students.TryGetValue(Id, out var student))
+            return student;
+        return null;
     }
 
     public IEnumerable<StudentsGroup> GetAllGroups() => _Groups;
