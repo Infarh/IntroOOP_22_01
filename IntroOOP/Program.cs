@@ -9,6 +9,20 @@ public static class Program
 {
     public static void Main(string[] args)
     {
+        var students = Enumerable.Range(1, 100).Select(
+            i => new Student
+            {
+                Id = i,
+                LastName = $"Last name - {i}",
+                FirstName = $"First name - {i}",
+                Patronymic = $"Patronymic - {i}",
+            }).ToArray();
+
+        var students_first_name_dict = students.ToDictionary(s => s.LastName, s => s.FirstName);
+
+        var test_student = students_first_name_dict["Last name - 53"];
+        //var test_student = students.First(stud => stud.LastName == "Last name - 53");
+
         var decanat = new Decanat();
 
         var group1 = new StudentsGroup { Name = "Группа-1" };
