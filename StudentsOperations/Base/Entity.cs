@@ -3,18 +3,21 @@
 public abstract class Entity
 {
     public int Id { get; set; }
-}
 
-public abstract class NamedEntity : Entity
-{
-    public string Name { get; set; }
-}
+    public override bool Equals(object? obj)
+    {
+        //if (ReferenceEquals(obj, null)) return false;
+        if (obj is null) return false;
 
-public abstract class PersonEntity : Entity
-{
-    public string LastName { get; set; }
+        if (GetType() != obj.GetType()) return false;
 
-    public string FirstName { get; set; }
+        var other_entity = (Entity)obj;
 
-    public string Patronymic { get; set; }
+        //if (other_entity.Id != Id)
+        //    return false;
+        //else
+        //    return true;
+
+        return other_entity.Id == Id;
+    }
 }
