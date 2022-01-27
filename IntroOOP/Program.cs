@@ -1,5 +1,7 @@
-﻿using ToolsLib;
+﻿using System.Security.Cryptography.X509Certificates;
 
+using StudentsOperations;
+using StudentsOperations.Base;
 
 namespace IntroOOP;
 
@@ -7,57 +9,49 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        RefList<string> strs_list = new RefList<string>();
-        RefList<string> strs_list2 = new RefList<string>();
+        var students = Enumerable.Range(1, 100).Select(
+            i => new Student
+            {
+                Id = i,
+                LastName = $"Last name - {i}",
+                FirstName = $"First name - {i}",
+                Patronymic = $"Patronymic - {i}",
+            }).ToArray();
 
-        var another_node = strs_list2.AddFirst("000");
+        var students_first_name_dict = students.ToDictionary(s => s.LastName, s => s.FirstName);
 
-        //var strs_node = new RefList<string>.Node();
+        var test_student = students_first_name_dict["Last name - 53"];
+        //var test_student = students.First(stud => stud.LastName == "Last name - 53");
 
-        for (var i = 1; i < 10; i++)
+        var decanat = new Decanat();
+
+        var group1 = new StudentsGroup { Name = "Группа-1" };
+
+        decanat.AddStudent(new Student
         {
-            strs_list.AddLast($"Value-{i}");
-        }
+            LastName = "Иванов",
+            FirstName = "Иван",
+            Patronymic = "Иванович",
+        }, group1);
 
-        var position = strs_list.First.Next.Next;
-
-        var node_123 = strs_list.AddAfter(position, "123");
-
-        //strs_list.AddAfter(another_node, "321");
-
-
-        var value_123 = strs_list.Remove(node_123);
-        //strs_list2.AddLast(strs_list.Remove(node_123));
-
-
-        strs_list.Clear();
-
-
-        strs_list.AddLast("111");
-        strs_list.AddLast("222");
-        strs_list.AddLast("333");
-        strs_list.AddLast("444");
-        strs_list.AddLast("333");
-        strs_list.AddLast("222");
-        strs_list.AddLast("111");
-
-        var list_items = strs_list.Where(s => s.StartsWith("3")).ToArray();
-
-        foreach (var value in strs_list)
+        decanat.AddStudent(new Student
         {
-            Console.WriteLine(value);
+            LastName = "Петров",
+            FirstName = "Пётр",
+            Patronymic = "Петрович",
+        }, group1);
 
-            //strs_list.AddLast(value);
-        }
-
-        //var items = Enumerable.Range(1, 100).ToList();
-        //foreach (var item in items)
-        //{
-        //    items.Remove(item);
-        //}
+        decanat.AddStudent(new Student
+        {
+            LastName = "Сидоров",
+            FirstName = "Сидор",
+            Patronymic = "Сидорович",
+        }, new StudentsGroup { Name = "Группа-2" });
 
 
-        //strs_list.AddAfter(position, "555");
+        var students_ratings = new Dictionary<Student, double>();
+
+        var students_set = new HashSet<Student>();
 
         Console.ReadLine();
     }

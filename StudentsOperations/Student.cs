@@ -1,18 +1,12 @@
 ﻿using System.Diagnostics;
+using StudentsOperations.Base;
 
 namespace StudentsOperations
 {
     //[DebuggerDisplay("[{Id}] {LastName} {FirstName} {Patronymic} - {Rating}")]
-    public class Student : IComparable<Student>
+    [Serializable]
+    public class Student : PersonEntity, IComparable<Student>
     {
-        public int Id { get; set; }
-
-        public string LastName { get; set; }
-
-        public string FirstName { get; set; }
-
-        public string Patronymic { get; set; }
-
         public double Rating { get; set; }
 
         public int GroupId { get; set; }
@@ -34,5 +28,22 @@ namespace StudentsOperations
         }
 
         public override string ToString() => $"[{Id,4}] {LastName} {FirstName} {Patronymic} - {Rating:0.0#}";
+
+        public override int GetHashCode()
+        {
+            //return HashCode.Combine(Id, LastName, FirstName, Patronymic, Rating, GroupId);
+
+            unchecked
+            {
+                var hash = Id.GetHashCode();
+                hash = (hash * 397) ^ LastName.GetHashCode(); // ^ - оператор "исключающее или" - побитовый
+                hash = (hash * 397) ^ FirstName.GetHashCode(); // X != Y;
+                hash = (hash * 397) ^ Patronymic.GetHashCode();
+                hash = (hash * 397) ^ Rating.GetHashCode();
+                hash = (hash * 397) ^ GroupId.GetHashCode();
+
+                return hash;
+            }
+        }
     }
 }
