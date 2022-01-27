@@ -1,4 +1,6 @@
-﻿namespace IntroOOP;
+﻿using StudentsOperations.Base;
+
+namespace IntroOOP;
 
 public static class Program
 {

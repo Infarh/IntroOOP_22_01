@@ -1,9 +1,8 @@
-﻿namespace StudentsOperations
-{
-    public class StudentsGroup
-    {
-        public int Id { get; set; }
+﻿using StudentsOperations.Base;
 
-        public string Name { get; set; }
-    }
+namespace StudentsOperations;
+
+public class StudentsGroup : NamedEntity
+{
+    public DateTime CreationTime { get; set; } = DateTime.Now;
 }
