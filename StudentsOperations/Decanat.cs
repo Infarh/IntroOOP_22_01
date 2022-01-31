@@ -1,40 +1,43 @@
-﻿namespace StudentsOperations;
+﻿using StudentsOperations.Storages.Base.Interfaces;
+
+namespace StudentsOperations;
 
 public class Decanat
 {
-    // CRUD = Create - Read - ?Update? - Delete
+    private readonly IStorage<Student> _Students;
+    private readonly IStorage<Lector> _Lectors;
+    private readonly IStorage<Course> _Courses;
+    private readonly IStorage<StudentsGroup> _StudentsGroups;
 
-    private int _LastFreeStudentId = 1;
-    private int _LastFreeGroupId = 1;
-    private int _LastFreeCourseId = 1;
-    private int _LastFreeLectorId = 1;
-
-    private readonly Dictionary<int, Student> _Students = new ();   // Время поиска O(1)
-    //private readonly List<Student> _Students = new();             // Время поиска O(N)
-
-    private readonly List<StudentsGroup> _Groups = new();
-
-    private readonly List<Course> _Courses = new();
-
-    private readonly List<Lector> _Lectors = new();
+    public Decanat(
+        IStorage<Student> Students,
+        IStorage<Lector> Lectors,
+        IStorage<Course> Courses,
+        IStorage<StudentsGroup> StudentsGroups)
+    {
+        _Students = Students;
+        _Lectors = Lectors;
+        _Courses = Courses;
+        _StudentsGroups = StudentsGroups;
+    }
 
     public int AddStudent(Student Student, StudentsGroup Group)
     {
-        if (_Students.ContainsKey(Student.Id))
+        if (_Students.GetById(Student.Id) is not null)
             return Student.Id;
 
         //if (_Students.Count == 0)
         //    Student.Id = 1;
         //else
             //Student.Id = _Students.Max(s => s.Id) + 1;
-        Student.Id = _LastFreeStudentId++;
+        //Student.Id = _LastFreeStudentId++;
         
         //var i = 0;
         //var j = i++ + ++i;
         //var m = i++; // 0 <- { m = i; i = i + 1; }
         //var k = ++i; // 2 <- { i = i + 1; k = i; }
 
-        _Students.Add(Student.Id, Student);
+        _Students.Add(Student);
 
         AddGroup(Group);
         Group.Students.Add(Student);
@@ -45,21 +48,19 @@ public class Decanat
 
     public int AddGroup(StudentsGroup Group)
     {
-        if (_Groups.Contains(Group))
+        if (_StudentsGroups.GetById(Group.Id) is not null)
             return Group.Id;
 
-        Group.Id = _LastFreeGroupId++;
-        _Groups.Add(Group);
+        _StudentsGroups.Add(Group);
 
         return Group.Id;
     }
 
     public int AddCourse(Course Course)
     {
-        if (_Courses.Contains(Course))
+        if (_Courses.GetById(Course.Id) is not null)
             return Course.Id;
 
-        Course.Id = _LastFreeCourseId++;
         _Courses.Add(Course);
 
         return Course.Id;
@@ -67,10 +68,9 @@ public class Decanat
 
     public int AddLector(Lector Lector)
     {
-        if (_Lectors.Contains(Lector))
+        if (_Lectors.GetById(Lector.Id) is not null)
             return Lector.Id;
 
-        Lector.Id = _LastFreeLectorId++;
         _Lectors.Add(Lector);
 
         return Lector.Id;
@@ -78,51 +78,34 @@ public class Decanat
 
     public Student? RemoveStudent(int Id)
     {
-        var student = GetStudentById(Id);
-        if (student is null)
-            return null;
-
-        _Students.Remove(student.Id);
-        var group = _Groups.FirstOrDefault(g => g.Students.Contains(student));
-        if (group != null)
-            group.Students.Remove(student);
-
-        return student;
+        return _Students.Remove(Id);
     }
 
-    public IEnumerable<Student> GetAllStudents() => _Students.Values;
+    public IEnumerable<Student> GetAllStudents() => _Students;
 
     public Student? GetStudentById(int Id)
     {
-        //var student = _Students[Id]; // Если в словаре такого ключа нет, то получаем исключение
-        //return student;
-        //var student = _Students.TryGetValue(Id, out var value) ? value : null;
-        if (_Students.TryGetValue(Id, out var student))
-            return student;
-        return null;
+        return _Students.GetById(Id);
     }
 
-    public IEnumerable<StudentsGroup> GetAllGroups() => _Groups;
+    public IEnumerable<StudentsGroup> GetAllGroups() => _StudentsGroups;
 
     public StudentsGroup? GetGroupById(int Id)
     {
-        var student = _Groups.FirstOrDefault(s => s.Id == Id);
-        return student;
+        return _StudentsGroups.GetById(Id);
     }
 
     public IEnumerable<Lector> GetAllLectors() => _Lectors;
 
     public Lector? GetLectorById(int Id)
     {
-        var student = _Lectors.FirstOrDefault(s => s.Id == Id);
-        return student;
+        return _Lectors.GetById(Id);
     }
 
     public IEnumerable<Course> GetAllCourses() => _Courses;
 
     public Course? GetCourseById(int Id)
     {
-        var student = _Courses.FirstOrDefault(s => s.Id == Id);
-        return student;
+        return _Courses.GetById(Id);
     }
 }

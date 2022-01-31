@@ -1,58 +1,69 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 
+using System.Linq;
+using LectorsOperations.Storages;
 using StudentsOperations;
 using StudentsOperations.Base;
+using StudentsOperations.Extensions;
+using StudentsOperations.Storages;
+using StudentsOperations.Storages.Base;
 
 namespace IntroOOP;
 
 public static class Program
 {
+    private static void Print(NamedEntity entity)
+    {
+        Console.WriteLine("[{0,5}] {1}", entity.Id, entity.Name);
+    }
+
+    private static StudentsStorage __StudentsStorage = new();
+    private static StudentsGroupStorage __GroupsStorage = new();
+
     public static void Main(string[] args)
     {
-        var students = Enumerable.Range(1, 100).Select(
-            i => new Student
+        var groups = Enumerable.Range(1, 10)
+           .Select(i => new StudentsGroup
             {
                 Id = i,
+                Name = $"Группа-{i}",
+            })
+           .ToArray();
+
+        var random = new Random(5);
+        var students = Enumerable.Range(1, 100)
+           .Select(i => new Student
+            {
+                //Id = i,
                 LastName = $"Last name - {i}",
                 FirstName = $"First name - {i}",
                 Patronymic = $"Patronymic - {i}",
-            }).ToArray();
+                Rating = random.NextDouble() * 100,
+                GroupId = random.Next(groups.Length)
+            })
+           .ToArray();
 
-        var students_first_name_dict = students.ToDictionary(s => s.LastName, s => s.FirstName);
+        __StudentsStorage.AddRange(students);
 
-        var test_student = students_first_name_dict["Last name - 53"];
-        //var test_student = students.First(stud => stud.LastName == "Last name - 53");
+        var best_students2 = __StudentsStorage.GetBestStudents();
+        var best_students3 = students.GetBestStudents();
 
-        var decanat = new Decanat();
+        Array.ForEach(groups, g => __GroupsStorage.Add(g));
 
-        var group1 = new StudentsGroup { Name = "Группа-1" };
+        var best_students = __StudentsStorage.Count(student => student.Rating >= 90);
 
-        decanat.AddStudent(new Student
-        {
-            LastName = "Иванов",
-            FirstName = "Иван",
-            Patronymic = "Иванович",
-        }, group1);
+        var group_students = __GroupsStorage.Join(
+            __StudentsStorage,
+            group => group.Id,
+            student => student.GroupId,
+            (group, student) => (Group: group, Student: student));
 
-        decanat.AddStudent(new Student
-        {
-            LastName = "Петров",
-            FirstName = "Пётр",
-            Patronymic = "Петрович",
-        }, group1);
+        foreach (var (group, student) in group_students)
+            group.Students.Add(student);
 
-        decanat.AddStudent(new Student
-        {
-            LastName = "Сидоров",
-            FirstName = "Сидор",
-            Patronymic = "Сидорович",
-        }, new StudentsGroup { Name = "Группа-2" });
+        var students_list = new List<Student>(students);
 
-
-        var students_ratings = new Dictionary<Student, double>();
-
-        var students_set = new HashSet<Student>();
-
-        Console.ReadLine();
+        //students_list.ForEach(s => Console.WriteLine(s));
+        best_students3.Foreach(s => Console.WriteLine(s));
     }
 }
