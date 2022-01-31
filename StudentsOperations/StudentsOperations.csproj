@@ -12,4 +12,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Storages\Base\" />
+  </ItemGroup>
+
 </Project>
