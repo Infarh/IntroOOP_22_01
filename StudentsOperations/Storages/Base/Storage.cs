@@ -28,7 +28,25 @@ public abstract class Storage<T> where T : Entity
         return NewItem.Id;
     }
 
-    public abstract bool Edit(T Item);
+    public bool Edit(T Item)
+    {
+        if (Item is null) throw new ArgumentNullException(nameof(Item));
+
+        //if (_Students.Contains(Student)) // закомментировано в связи с тем, что класс Entity реализует метод Equals, сравнивающий объекты по их идентификаторам
+        //    return false;
+
+        var db_item = GetById(Item.Id);
+        if (db_item is null)
+            return false;
+
+        Copy(Item, db_item);
+
+        // SaveChanges();
+
+        return true;
+    }
+
+    protected abstract void Copy(T Source, T Destination);
 
     public T? Remove(int Id)
     {
