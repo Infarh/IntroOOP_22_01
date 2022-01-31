@@ -1,8 +1,11 @@
-﻿using StudentsOperations.Base;
+﻿using System.Collections;
+
+using StudentsOperations.Base;
+using StudentsOperations.Storages.Base.Interfaces;
 
 namespace StudentsOperations.Storages.Base;
 
-public abstract class Storage<T> where T : Entity
+public abstract class Storage<T> : IStorage<T> where T : Entity
 {
     private int _LastFreeId = 1;
     private List<T> _Items = new();
@@ -57,5 +60,15 @@ public abstract class Storage<T> where T : Entity
         _Items.Remove(db_student);
 
         return db_student;
+    }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        return ((IEnumerable<T>)_Items).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return ((IEnumerable)_Items).GetEnumerator();
     }
 }
