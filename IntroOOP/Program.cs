@@ -1,69 +1,68 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-using System.Linq;
-using LectorsOperations.Storages;
-using StudentsOperations;
-using StudentsOperations.Base;
-using StudentsOperations.Extensions;
-using StudentsOperations.Storages;
-using StudentsOperations.Storages.Base;
+﻿using IntroOOP.Commands;
+using IntroOOP.Commands.Base;
+using IntroOOP.Models;
 
 namespace IntroOOP;
 
 public static class Program
 {
-    private static void Print(NamedEntity entity)
+    public static DirectoryModel CurrentDirectory { get; set; }
+    public static FileModel CurrentFile { get; set; }
+
+    public static IReadOnlyDictionary<string, FileManagerCommand> Commands { get; } = CreateCommands();
+
+    private static Dictionary<string, FileManagerCommand> CreateCommands()
     {
-        Console.WriteLine("[{0,5}] {1}", entity.Id, entity.Name);
+        var help_command = new FileManagerHelpCommand();
+        FileManagerCommand[] commands =
+        {
+            help_command,
+            new FileManagerPrintDirectoriesCommand(),
+            new FileManagerPrintDrivesCommand(),
+            new FileManagerPrintFilesCommand(),
+        };
+
+        var result = commands.ToDictionary(cmd => cmd.Name);
+
+        result["?"] = help_command;
+
+        return result;
     }
 
-    private static StudentsStorage __StudentsStorage = new();
-    private static StudentsGroupStorage __GroupsStorage = new();
+    private static readonly Dictionary<(char, int), string> __StringsPool = new ();
+
+    private static string GetString(char c, int Count)
+    {
+        if (__StringsPool.TryGetValue((c, Count), out var str))
+            return str;
+
+        str = new string(c, Count);
+        __StringsPool[(c, Count)] = str;
+
+        return str;
+    }
 
     public static void Main(string[] args)
     {
-        var groups = Enumerable.Range(1, 10)
-           .Select(i => new StudentsGroup
+
+        //FileOperations.Test();
+
+        var do_work = true;
+        while (do_work)
+        {
+            Console.Write("Введите команду >");
+            var command_line = Console.ReadLine();
+
+            if (!Commands.TryGetValue(command_line, out var command))
             {
-                Id = i,
-                Name = $"Группа-{i}",
-            })
-           .ToArray();
-
-        var random = new Random(5);
-        var students = Enumerable.Range(1, 100)
-           .Select(i => new Student
+                Console.WriteLine("Неизвестная команда {0}. Для помощи напишите help", command_line);
+            }
+            else
             {
-                //Id = i,
-                LastName = $"Last name - {i}",
-                FirstName = $"First name - {i}",
-                Patronymic = $"Patronymic - {i}",
-                Rating = random.NextDouble() * 100,
-                GroupId = random.Next(groups.Length)
-            })
-           .ToArray();
+                command.Execute();
+            }
+        }
 
-        __StudentsStorage.AddRange(students);
-
-        var best_students2 = __StudentsStorage.GetBestStudents();
-        var best_students3 = students.GetBestStudents();
-
-        Array.ForEach(groups, g => __GroupsStorage.Add(g));
-
-        var best_students = __StudentsStorage.Count(student => student.Rating >= 90);
-
-        var group_students = __GroupsStorage.Join(
-            __StudentsStorage,
-            group => group.Id,
-            student => student.GroupId,
-            (group, student) => (Group: group, Student: student));
-
-        foreach (var (group, student) in group_students)
-            group.Students.Add(student);
-
-        var students_list = new List<Student>(students);
-
-        //students_list.ForEach(s => Console.WriteLine(s));
-        best_students3.Foreach(s => Console.WriteLine(s));
+        Console.WriteLine("Программа завершена");
     }
 }
