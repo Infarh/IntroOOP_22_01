@@ -2,7 +2,7 @@
 
 namespace IntroOOP.Models;
 
-internal class FileModel : FileSystemItemModel
+public class FileModel : FileSystemItemModel
 {
     private readonly FileInfo _File;
 

@@ -2,7 +2,7 @@
 
 namespace IntroOOP.Models;
 
-internal class DirectoryModel : FileSystemItemModel
+public class DirectoryModel : FileSystemItemModel
 {
     private readonly DirectoryInfo _Directory;
 
@@ -98,7 +98,48 @@ internal class DirectoryModel : FileSystemItemModel
         });
     }
 
+    public FileModel[] GetFiles(int Skip, int Count)
+    {
+        return EnumerateFiles()
+           .Skip(Skip)
+           .Take(Count)
+           .ToArray();
+    }
+
+    public FilesPage GetFilesPage(int Index, int Size)
+    {
+        var all_files = EnumerateFiles();
+        var page_files = all_files.Skip(Index * Size).Take(Size).ToArray();
+        var total_count = all_files.Count();
+
+        return new FilesPage(Index, page_files.Length, Size, page_files, total_count);
+    }
+
     public static implicit operator DirectoryInfo(DirectoryModel model) => model._Directory;
 
     public static explicit operator DirectoryModel(DirectoryInfo dir) => new DirectoryModel(dir);
+}
+
+public class FilesPage
+{
+    public int Index { get; }
+
+    public int Count { get; }
+
+    public int Size { get; }
+
+    public IEnumerable<FileModel> Files { get; }
+
+    public int TotalCount { get; }
+
+    public int PagesCount => (int)Math.Floor((double)TotalCount / Size);
+
+    public FilesPage(int Index, int Count, int Size, IEnumerable<FileModel> Files, int TotalCount)
+    {
+        this.Index = Index;
+        this.Count = Count;
+        this.Size = Size;
+        this.Files = Files;
+        this.TotalCount = TotalCount;
+    }
 }

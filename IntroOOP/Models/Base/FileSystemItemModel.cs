@@ -1,6 +1,6 @@
 ﻿namespace IntroOOP.Models.Base;
 
-internal abstract class FileSystemItemModel
+public abstract class FileSystemItemModel
 {
 
 }

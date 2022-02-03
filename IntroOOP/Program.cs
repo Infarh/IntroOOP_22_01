@@ -4,7 +4,7 @@ using IntroOOP.Models;
 
 namespace IntroOOP;
 
-internal static class Program
+public static class Program
 {
     public static DirectoryModel CurrentDirectory { get; set; }
     public static FileModel CurrentFile { get; set; }
