@@ -29,8 +29,22 @@ public static class Program
         return result;
     }
 
+    private static readonly Dictionary<(char, int), string> __StringsPool = new ();
+
+    private static string GetString(char c, int Count)
+    {
+        if (__StringsPool.TryGetValue((c, Count), out var str))
+            return str;
+
+        str = new string(c, Count);
+        __StringsPool[(c, Count)] = str;
+
+        return str;
+    }
+
     public static void Main(string[] args)
     {
+
         //FileOperations.Test();
 
         var do_work = true;
